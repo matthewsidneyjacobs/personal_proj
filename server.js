@@ -1,26 +1,15 @@
 var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 3000
-
+var bodyParser = require('body-parser');
 
 var middleware = require('./middleware.js');
 
 // app.use(middleware.requireAuthentication);
 
 
-var foodItems = [{
-  id: 1,
-  description: "apples",
-  daysleftstillgood: 3
-},{
-  id: 2,
-  description: "lettuce",
-  daysleftstillgood: 2
-},{
-  id:3,
-  description: "yams",
-  daysleftstillgood: 7
-}];
+var foodItems = [];
+var foodItemNextId = 1;
 
 //this only works if url is 3000/about.  if i go to 3000/#/about, thats the app view of about
 // app.get('/about', middleware.requireAuthentication, function(req,res) {
@@ -30,7 +19,7 @@ var foodItems = [{
 
 
 
-
+app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'))
 
 app.get('/', function(req, res) {
@@ -63,7 +52,16 @@ app.get('/foodItems/:id', function (req,res) {
 
 
 
+//POST add new fooditem /foodItems
+app.post('/foodItems', function(req,res) {
+  var body = req.body;
 
+  body.id = foodItemNextId++;
+  foodItems.push(body);
+
+  console.log('description: ' + body.description);
+  res.json(body);
+});
 
 
 
