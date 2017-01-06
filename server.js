@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 3000
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 var middleware = require('./middleware.js');
 
@@ -34,12 +35,8 @@ app.get('/foodItems', function(req,res) {
 //GET /foodItems/:id
 app.get('/foodItems/:id', function (req,res) {
   var foodItemId = parseInt(req.params.id, 10);
-  var matchedItem;
-  foodItems.forEach(function(item) {
-    if (foodItemId === item.id) {
-      matchedItem = item;
-    }
-  });
+  var matchedItem = _.findWhere(foodItems, {id: foodItemId})
+
 
   if (matchedItem) {
     res.json(matchedItem)
@@ -54,12 +51,15 @@ app.get('/foodItems/:id', function (req,res) {
 
 //POST add new fooditem /foodItems
 app.post('/foodItems', function(req,res) {
-  var body = req.body;
+  var body = _.pick(req.body, 'description', 'daysleftstillgood');
 
+  if (!_.isNumber(body.daysleftstillgood) || !_.isString(body.description) || body.description.trim().length === 0) {
+    return res.status(400).send();
+  }
+  body.description = body.description.trim();
   body.id = foodItemNextId++;
   foodItems.push(body);
 
-  console.log('description: ' + body.description);
   res.json(body);
 });
 
