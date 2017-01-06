@@ -79,8 +79,34 @@ app.delete('/foodItems/:id', function(req,res) {
   res.send('asking to delete item with id of ' + req.params.id)
 })
 
+//PUT /foodItems/:id
+app.put('/foodItems/:id', function(req,res) {
+  var foodItemId = parseInt(req.params.id, 10);
+  var matchedItem = _.findWhere(foodItems, {id: foodItemId});
+  var body = _.pick(req.body, 'description', 'daysleftstillgood');
+  var validAttributes = {};
+
+  if (!matchedItem) {
+    return res.status(404).send();
+  }
 
 
+  if(body.hasOwnProperty('daysleftstillgood') && _.isNumber(body.daysleftstillgood)) {
+    validAttributes.daysleftstillgood = body.daysleftstillgood;
+  } else if (body.hasOwnProperty('daysleftstillgood')) {
+    return res.status(400).send()
+  }
+
+  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+    validAttributes.description = body.description
+  } else if (body.hasOwnProperty('description')) {
+    return res.status(400).send
+  }
+
+  _.extend(matchedItem, validAttributes);
+  res.json(matchedItem);
+
+});
 
 
 
