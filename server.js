@@ -27,9 +27,18 @@ app.get('/', function(req, res) {
   res.send('foodproject root')
 })
 
-//GET /foodItems
+//GET   /foodItems   or  /foodItems?daysleftstillgood = 3
 app.get('/foodItems', function(req,res) {
-  res.json(foodItems);
+  var queryParams = req.query;
+  var filteredfoodItems = foodItems;
+
+  if (queryParams.hasOwnProperty('q') && queryParams.q.length>0) {
+    filteredfoodItems = _.filter(filteredfoodItems, function(item) {
+      return item.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+    })
+  }
+
+  res.json(filteredfoodItems);
 });
 
 
