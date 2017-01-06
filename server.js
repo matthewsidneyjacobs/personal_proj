@@ -28,15 +28,15 @@ app.get('/', function(req, res) {
 })
 
 //GET /foodItems
-
 app.get('/foodItems', function(req,res) {
   res.json(foodItems);
 });
+
+
 //GET /foodItems/:id
 app.get('/foodItems/:id', function (req,res) {
   var foodItemId = parseInt(req.params.id, 10);
   var matchedItem = _.findWhere(foodItems, {id: foodItemId})
-
 
   if (matchedItem) {
     res.json(matchedItem)
@@ -63,7 +63,21 @@ app.post('/foodItems', function(req,res) {
   res.json(body);
 });
 
+//DELETE /foodItems/:id
+app.delete('/foodItems/:id', function(req,res) {
+  //_.without
+  var foodItemId = parseInt(req.params.id, 10);
+  var matchedItem = _.findWhere(foodItems, {id: foodItemId})
 
+  if (!matchedItem) {
+    res.status(404).json({"error": "no item found with that id"});
+  } else {
+    foodItems = _.without(foodItems, matchedItem);
+    res.json(matchedItem);
+  }
+
+  res.send('asking to delete item with id of ' + req.params.id)
+})
 
 
 
