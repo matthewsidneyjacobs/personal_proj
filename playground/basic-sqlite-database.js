@@ -28,7 +28,7 @@ sequelize.sync({
 }).then(function() {
   console.log('everything is synced');
 
-  Item.findById(3).then(function (item) {
+  Item.findById(1).then(function (item) {
     if (item) {
       console.log(item.toJSON());
     } else {

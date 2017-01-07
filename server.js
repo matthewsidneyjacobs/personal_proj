@@ -3,6 +3,7 @@ var app = express();
 var PORT = process.env.PORT || 3000
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
 
 var middleware = require('./middleware.js');
 
@@ -62,14 +63,19 @@ app.get('/foodItems/:id', function (req,res) {
 app.post('/foodItems', function(req,res) {
   var body = _.pick(req.body, 'description', 'daysleftstillgood');
 
-  if (!_.isNumber(body.daysleftstillgood) || !_.isString(body.description) || body.description.trim().length === 0) {
-    return res.status(400).send();
-  }
-  body.description = body.description.trim();
-  body.id = foodItemNextId++;
-  foodItems.push(body);
-
-  res.json(body);
+  db.item.create(body).then(function(item) {
+    res.status(200).json(item.toJSON());
+  },function(e) {
+    res.status(400).json(e)
+  });
+  // if (!_.isNumber(body.daysleftstillgood) || !_.isString(body.description) || body.description.trim().length === 0) {
+  //   return res.status(400).send();
+  // }
+  // body.description = body.description.trim();
+  // body.id = foodItemNextId++;
+  // foodItems.push(body);
+  //
+  // res.json(body);
 });
 
 //DELETE /foodItems/:id
@@ -123,8 +129,8 @@ app.put('/foodItems/:id', function(req,res) {
 
 
 
-
-
-app.listen(PORT, function() {
-  console.log('I\'m listening on port: ', PORT)
+db.sequelize.sync().then(function() {
+  app.listen(PORT, function() {
+    console.log('I\'m listening on port: ', PORT)
+  })
 })
