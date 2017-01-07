@@ -106,16 +106,33 @@ app.post('/foodItems', function(req,res) {
 app.delete('/foodItems/:id', function(req,res) {
   //_.without
   var foodItemId = parseInt(req.params.id, 10);
-  var matchedItem = _.findWhere(foodItems, {id: foodItemId})
 
-  if (!matchedItem) {
-    res.status(404).json({"error": "no item found with that id"});
-  } else {
-    foodItems = _.without(foodItems, matchedItem);
-    res.json(matchedItem);
-  }
+  db.item.destroy({
+    where: {
+      id: foodItemId
+    }
+  }).then(function(rowsDeleted) {
+    if (rowsDeleted === 0) {
+      res.status(404).json({
+        error: 'no item with that id'
+      });
+    } else {
+      res.status(204).send();
+    }
+  }, function() {
+    res.status(500).send()
+  });
 
-  res.send('asking to delete item with id of ' + req.params.id)
+
+  // var matchedItem = _.findWhere(foodItems, {id: foodItemId})
+  // if (!matchedItem) {
+  //   res.status(404).json({"error": "no item found with that id"});
+  // } else {
+  //   foodItems = _.without(foodItems, matchedItem);
+  //   res.json(matchedItem);
+  // }
+  //
+  // res.send('asking to delete item with id of ' + req.params.id)
 })
 
 //PUT /foodItems/:id

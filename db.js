@@ -4,6 +4,7 @@ var Sequelize = require('sequelize');
 var env = process.env.NODE_ENV || 'development';
 var sequelize;
 
+//this looks at node environment variables. if the process.env.NODE_ENV is set for heroku, we use postgres for database, otherwise we use sqlite. as of now it is working on heroku
 if (env === 'production') {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres'
