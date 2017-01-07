@@ -19,6 +19,7 @@ if (env === 'production') {
 var db = {};
 
 db.item = sequelize.import(__dirname+'/models/item.js');
+db.user = sequelize.import(__dirname+'/models/user.js');
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
