@@ -46,15 +46,25 @@ app.get('/foodItems', function(req,res) {
 //GET /foodItems/:id
 app.get('/foodItems/:id', function (req,res) {
   var foodItemId = parseInt(req.params.id, 10);
-  var matchedItem = _.findWhere(foodItems, {id: foodItemId})
 
-  if (matchedItem) {
-    res.json(matchedItem)
-  } else {
-    res.status(404).send();
-  }
-
-  res.send('asking for item with id of ' + req.params.id)
+  db.item.findById(foodItemId).then(function(item) {
+    if (!!item) {
+      res.json(item.toJSON());
+    } else {
+      res.status(404).send();
+    }
+  }, function(e) {
+    res.status(500).send();
+  })
+  // var matchedItem = _.findWhere(foodItems, {id: foodItemId})
+  //
+  // if (matchedItem) {
+  //   res.json(matchedItem)
+  // } else {
+  //   res.status(404).send();
+  // }
+  //
+  // res.send('asking for item with id of ' + req.params.id)
 })
 
 
