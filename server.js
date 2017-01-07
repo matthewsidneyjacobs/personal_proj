@@ -6,7 +6,7 @@ var _ = require('underscore');
 var db = require('./db.js');
 var bcrypt = require('bcryptjs');
 
-var middleware = require('./middleware.js');
+var middleware = require('./middleware.js')(db);
 
 // app.use(middleware.requireAuthentication);
 
@@ -30,7 +30,7 @@ app.get('/', function(req, res) {
 })
 
 //GET   /foodItems   or  /foodItems?daysleftstillgood = 3
-app.get('/foodItems', function(req,res) {
+app.get('/foodItems', middleware.requireAuthentication, function(req,res) {
   var query = req.query;
 
   var where = {};
@@ -59,7 +59,7 @@ app.get('/foodItems', function(req,res) {
 
 
 //GET /foodItems/:id
-app.get('/foodItems/:id', function (req,res) {
+app.get('/foodItems/:id', middleware.requireAuthentication, function (req,res) {
   var foodItemId = parseInt(req.params.id, 10);
 
   db.item.findById(foodItemId).then(function(item) {
@@ -85,7 +85,7 @@ app.get('/foodItems/:id', function (req,res) {
 
 
 //POST add new fooditem /foodItems
-app.post('/foodItems', function(req,res) {
+app.post('/foodItems', middleware.requireAuthentication, function(req,res) {
   var body = _.pick(req.body, 'description', 'daysleftstillgood');
 
   db.item.create(body).then(function(item) {
@@ -104,7 +104,7 @@ app.post('/foodItems', function(req,res) {
 });
 
 //DELETE /foodItems/:id
-app.delete('/foodItems/:id', function(req,res) {
+app.delete('/foodItems/:id',  middleware.requireAuthentication, function(req,res) {
   //_.without
   var foodItemId = parseInt(req.params.id, 10);
 
@@ -137,7 +137,7 @@ app.delete('/foodItems/:id', function(req,res) {
 })
 
 //PUT /foodItems/:id
-app.put('/foodItems/:id', function(req,res) {
+app.put('/foodItems/:id', middleware.requireAuthentication, function(req,res) {
   var foodItemId = parseInt(req.params.id, 10);
 
   var body = _.pick(req.body, 'description', 'daysleftstillgood');
