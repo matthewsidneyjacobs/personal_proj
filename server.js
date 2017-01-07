@@ -30,16 +30,30 @@ app.get('/', function(req, res) {
 
 //GET   /foodItems   or  /foodItems?daysleftstillgood = 3
 app.get('/foodItems', function(req,res) {
-  var queryParams = req.query;
-  var filteredfoodItems = foodItems;
+  var query = req.query;
 
-  if (queryParams.hasOwnProperty('q') && queryParams.q.length>0) {
-    filteredfoodItems = _.filter(filteredfoodItems, function(item) {
-      return item.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-    })
+  var where = {};
+
+  if (query.hasOwnProperty('q')&&query.q.length>0) {
+    where.description = {
+      $like: '%'+query.q+'%'
+    };
   }
 
-  res.json(filteredfoodItems);
+  db.item.findAll({where: where}).then(function(foodItems) {
+    res.json(foodItems);
+  }, function(e) {
+    res.status(500).send();
+  })
+  // var filteredfoodItems = foodItems;
+  //
+  // if (queryParams.hasOwnProperty('q') && queryParams.q.length>0) {
+  //   filteredfoodItems = _.filter(filteredfoodItems, function(item) {
+  //     return item.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+  //   })
+  // }
+  //
+  // res.json(filteredfoodItems);
 });
 
 
