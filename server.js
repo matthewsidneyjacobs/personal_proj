@@ -138,37 +138,48 @@ app.delete('/foodItems/:id', function(req,res) {
 //PUT /foodItems/:id
 app.put('/foodItems/:id', function(req,res) {
   var foodItemId = parseInt(req.params.id, 10);
-  var matchedItem = _.findWhere(foodItems, {id: foodItemId});
+
   var body = _.pick(req.body, 'description', 'daysleftstillgood');
-  var validAttributes = {};
+  var attributes = {};
 
-  if (!matchedItem) {
-    return res.status(404).send();
+
+  if (body.hasOwnProperty('daysleftstillgood')) {
+    attributes.daysleftstillgood = body.daysleftstillgood
   }
 
-
-  if(body.hasOwnProperty('daysleftstillgood') && _.isNumber(body.daysleftstillgood)) {
-    validAttributes.daysleftstillgood = body.daysleftstillgood;
-  } else if (body.hasOwnProperty('daysleftstillgood')) {
-    return res.status(400).send()
+  if (body.hasOwnProperty('description')) {
+    attributes.description = body.description;
   }
 
-  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-    validAttributes.description = body.description
-  } else if (body.hasOwnProperty('description')) {
-    return res.status(400).send
-  }
+  db.item.findById(foodItemId).then(function(item) {
+		if (item) {
+			item.update(attributes).then(function(item) {
+				res.json(item.toJSON());
+			}, function(e) {
+				res.status(400).json(e);
+			});
+		} else {
+			res.status(404).send();
+		}
+	}, function() {
+		res.status(500).send();
+	});
 
-  _.extend(matchedItem, validAttributes);
-  res.json(matchedItem);
+  // if(body.hasOwnProperty('daysleftstillgood') && _.isNumber(body.daysleftstillgood)) {
+  //   validAttributes.daysleftstillgood = body.daysleftstillgood;
+  // } else if (body.hasOwnProperty('daysleftstillgood')) {
+  //   return res.status(400).send()
+  // }
+  //
+  // if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+  //   validAttributes.description = body.description
+  // } else if (body.hasOwnProperty('description')) {
+  //   return res.status(400).send
+  // }
 
+  // _.extend(matchedItem, validAttributes);
+  // res.json(matchedItem);
 });
-
-
-
-
-
-
 
 db.sequelize.sync().then(function() {
   app.listen(PORT, function() {
