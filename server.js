@@ -89,7 +89,12 @@ app.post('/foodItems', middleware.requireAuthentication, function(req,res) {
   var body = _.pick(req.body, 'description', 'daysleftstillgood');
 
   db.item.create(body).then(function(item) {
-    res.status(200).json(item.toJSON());
+    // res.status(200).json(item.toJSON());
+    req.user.addItem(item).then(function() {
+      return item.reload();
+    }).then(function (item) {
+      res.json(item.toJSON());
+    });
   },function(e) {
     res.status(400).json(e)
   });

@@ -23,4 +23,7 @@ db.user = sequelize.import(__dirname+'/models/user.js');
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+//foreign key set up to connect user and food list
+db.item.belongsTo(db.user);
+db.user.hasMany(db.item);
 module.exports = db;

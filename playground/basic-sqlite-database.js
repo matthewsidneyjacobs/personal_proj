@@ -22,19 +22,54 @@ var Item = sequelize.define('item', {
       min:1
     }
   }
-})
+});
+
+var User = sequelize.define('user', {
+  email: Sequelize.STRING
+});
+
+
+//this is where i set up a foreign key to connect a user to their food list
+Item.belongsTo(User);
+User.hasMany(Item);
+
 sequelize.sync({
   // force:true
 }).then(function() {
   console.log('everything is synced');
 
-  Item.findById(1).then(function (item) {
-    if (item) {
-      console.log(item.toJSON());
-    } else {
-      console.log('item not found');
-    }
+  User.findById(1).then(function (user) {
+    user.getItems({
+      where: {
+        description: "apples"
+      }
+    }).then(function (items) {
+      items.forEach(function(item) {
+        console.log(item.toJSON())
+      })
+    })
   })
+
+  // User.create({
+  //   email: 'andrew@example.com'
+  // }).then(function () {
+  //   return Item.create({
+  //     description: "grapes"
+  //   });
+  // }).then(function (item) {
+  //   User.findById(1).then(function (user) {
+  //       user.addItem(item);
+  //
+  //   });
+  // });
+
+  // Item.findById(1).then(function (item) {
+  //   if (item) {
+  //     console.log(item.toJSON());
+  //   } else {
+  //     console.log('item not found');
+  //   }
+  // })
 
   // Item.create({
   //   description: 'apple',
