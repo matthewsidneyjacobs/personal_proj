@@ -33,7 +33,9 @@ app.get('/', function(req, res) {
 app.get('/foodItems', middleware.requireAuthentication, function(req,res) {
   var query = req.query;
 
-  var where = {};
+  var where = {
+    // userId: req.user.get('id')
+  };
 
   if (query.hasOwnProperty('q')&&query.q.length>0) {
     where.description = {
@@ -62,7 +64,12 @@ app.get('/foodItems', middleware.requireAuthentication, function(req,res) {
 app.get('/foodItems/:id', middleware.requireAuthentication, function (req,res) {
   var foodItemId = parseInt(req.params.id, 10);
 
-  db.item.findById(foodItemId).then(function(item) {
+  db.item.findOne({
+    where: {
+      id: foodItemId,
+      userId: req.user.get('id')
+    }
+  }).then(function(item) {
     if (!!item) {
       res.json(item.toJSON());
     } else {
@@ -115,7 +122,8 @@ app.delete('/foodItems/:id',  middleware.requireAuthentication, function(req,res
 
   db.item.destroy({
     where: {
-      id: foodItemId
+      id: foodItemId,
+      userId: req.user.get('id')
     }
   }).then(function(rowsDeleted) {
     if (rowsDeleted === 0) {
@@ -157,7 +165,12 @@ app.put('/foodItems/:id', middleware.requireAuthentication, function(req,res) {
     attributes.description = body.description;
   }
 
-  db.item.findById(foodItemId).then(function(item) {
+  db.item.findOne({
+    where: {
+      id: foodItemId,
+      userId: req.user.get('id')
+    }
+  }).then(function(item) {
 		if (item) {
 			item.update(attributes).then(function(item) {
 				res.json(item.toJSON());
